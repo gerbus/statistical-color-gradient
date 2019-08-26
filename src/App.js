@@ -40,15 +40,27 @@ const spectral_color = function(l) { // lambda l <400,700> [nm]
 
   return rgb;
 }
+const normalRandom = function(offset = 0) {
+  let rand = 0
 
-const styles = {
-  barContainer: {
-    display: 'flex',
-    flex: 1,
-  },
+  for (let i = 0; i < 6; i++) {
+    rand += Math.random()
+  }
+
+  const offsetNormalRandom = ((rand / 6) + offset) % 1
+
+  return offsetNormalRandom
 }
 
+
+
 function App() {
+  const styles = {
+    barContainer: {
+      display: 'flex',
+      flex: 1,
+    },
+  }
   const FatBars = () => (
     <>
       {Object.keys(colors).map(colorKey => (
@@ -58,16 +70,11 @@ function App() {
     </>
   )
 
-  const SpectrumBars = () => {
-    const width = window.innerWidth;
-    let pixelArray = [];
-    for (let i = 0; i < width; i++) {
-      pixelArray.push(spectralColor(i/(width-1)))
-    }
-
+  const Bars = (props) => {
+    const { rgbPixelArray } = props;
     return (
       <>
-        {pixelArray.map(rgb => (
+        {rgbPixelArray.map(rgb => (
           <div style={{...styles.barContainer, backgroundColor: `rgb(${255*rgb.r},${255*rgb.g},${255*rgb.b})`}}>
           </div>
         ))}
@@ -75,15 +82,67 @@ function App() {
     )
   }
 
+  const SpectrumBars = () => {
+    const width = window.innerWidth;
+    let pixelArray = [];
+    for (let i = 0; i < width; i++) {
+      pixelArray.push(spectralColor(i/(width-1)))   // grab the spectral colors in sequence
+    }
+
+    return <Bars rgbPixelArray={pixelArray} />
+  }
+
+  const RandomSpectrumBars = () => {
+    const width =  window.innerWidth
+    let pixelArray = []
+    for (let i = 0; i < width; i++) {
+      pixelArray.push(spectralColor(Math.random())) // grab a random spectral color
+    }
+
+    return <Bars rgbPixelArray={pixelArray} />
+  }
+
+  const NormalStaticSpectrumBars = () => {
+    const width =  window.innerWidth
+    let pixelArray = []
+    for (let i = 0; i < width; i++) {
+      pixelArray.push(spectralColor(normalRandom()))  // grab a random spectral color from a normal
+    }                                                 //  distribution centered in the center of the spectrum
+
+    return <Bars rgbPixelArray={pixelArray} />
+  }
+
+  const NormalSpectrumBars = () => {
+    const width =  window.innerWidth
+
+    const pixelArray = []
+    for (let i = 0; i < width; i++) {
+      const offset = (i + (width/2)) / width
+      console.log(offset)
+      pixelArray.push(spectralColor(normalRandom(offset)))
+    }
+
+    return <Bars rgbPixelArray={pixelArray} />
+  }
+
   return (
-    <>
-      <div style={{display: 'flex', flex: 1, height: '200px'}}>
+    <div style={{height: '100vh', display: 'flex', flexDirection: 'column'}}>
+      <div style={{display: 'flex', flex: 1}}>
         <FatBars />
       </div>
-      <div style={{display: 'flex', flex: 1, height: '200px'}}>
+      <div style={{display: 'flex', flex: 1}}>
         <SpectrumBars />
       </div>
-    </>
+      <div style={{display: 'flex', flex: 1}}>
+        <RandomSpectrumBars />
+      </div>
+      <div style={{display: 'flex', flex: 1}}>
+        <NormalStaticSpectrumBars />
+      </div>
+      <div style={{display: 'flex', flex: 1}}>
+        <NormalSpectrumBars />
+      </div>
+    </div>
   )
 }
 
